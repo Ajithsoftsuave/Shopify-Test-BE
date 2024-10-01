@@ -51,7 +51,7 @@ export const fetchCart = async (client, cartID) => {
 export const createOrder = async (client, param) => {
   try {
     const order = await client.order.create({
-      sendReceipt: true,
+      send_receipt: true,
       customer: param.customerDetails,
       line_items: param.lineItems,
       billing_address: param.billingAddress,
