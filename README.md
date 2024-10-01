@@ -8,3 +8,4 @@ NodeJS, ExpressJS, MySQL
 2. npm install - to install dependencies
 3. Update DB name, User name, Password, Host configuration in db.js file
 4. npm start - to start application
+5. Add shopify store detail in `shopify_store` table
