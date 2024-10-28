@@ -138,15 +138,18 @@ export const sendOrderInvoice = () => {
 
 export const applyDiscount = () => {
   return `
-	mutation cartDiscountCodesUpdate($cartId: ID!) {
-	cartDiscountCodesUpdate(cartId: $cartId) {
-	  cart {
-		${cartFields}
-	  }
-	  userErrors {
-		field
-		message
-	  }
-	}
-  }`;
+	mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+  cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+    cart {
+      discountCodes {
+        applicable
+        code
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`;
 };

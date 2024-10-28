@@ -5,6 +5,7 @@ import {
   shopifyClientInit,
   storefrontClientInit,
   applyDiscountService,
+  applyShippingAddress,
 } from "../service/shopify/shopify.service.js";
 
 export const getCartController = async (req, res) => {
@@ -79,12 +80,39 @@ export const applyDiscountController = async (req, res) => {
       res.status(404).send("Shopify store not found");
     }
     const storefrontClient = await storefrontClientInit(data);
-
+    let discountCode = req.query?.discountCode?.replace("%3F", "?");
+    discountCode = req.query?.discountCode?.replace("%3D", "=");
     const requestParams = {
       cartId: req.query.cartID,
-      discountCodes: [req.query.discountCode],
+      discountCodes: [discountCode],
     };
     let updatedCart = await applyDiscountService(
+      storefrontClient,
+      requestParams
+    );
+
+    res.send({ data: updatedCart });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+export const applyShppingRequest = async (req, res) => {
+  try {
+    const data = await ShopifyStore.findOne({
+      where: {
+        shop_id: req.query.shopID,
+      },
+    });
+    if (!data) {
+      res.status(404).send("Shopify store not found");
+    }
+    const storefrontClient = await storefrontClientInit(data);
+    const requestParams = {
+      checkoutId: "gid://shopify/Checkout/1234567890",
+      shippingAddress: req.body.shippingAddress,
+    };
+    let updatedCart = await applyShippingAddress(
       storefrontClient,
       requestParams
     );

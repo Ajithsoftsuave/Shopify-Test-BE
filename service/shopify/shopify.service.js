@@ -101,7 +101,75 @@ export const createOrder = async (client, param) => {
 
 export const applyDiscountService = async (client, params) => {
   try {
-    const cartResponse = await client.request(applyDiscount(), params);
+    const cartResponse = await client.request(
+      `
+	mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+  cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
+    cart {
+      discountCodes {
+        applicable
+        code
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`,
+      params
+    );
+    return cartResponse;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const applyShippingAddress = async (client, params) => {
+  try {
+    const cartResponse = await client.request(
+      `mutation checkoutShippingAddressUpdateV2($checkoutId: ID!, $shippingAddress: MailingAddressInput!) {
+  checkoutShippingAddressUpdateV2(checkoutId: $checkoutId, shippingAddress: $shippingAddress) {
+    checkout {
+      id
+      shippingAddress {
+        address1
+        city
+        province
+        country
+        zip
+      }
+      totalTax {
+        amount
+        currencyCode
+      }
+      lineItems(first: 10) {
+        edges {
+          node {
+            title
+            quantity
+          }
+        }
+      }
+      subtotalPrice {
+        amount
+        currencyCode
+      }
+      totalPrice {
+        amount
+        currencyCode
+      }
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
+`,
+      params
+    );
     return cartResponse;
   } catch (error) {
     console.log(error);
