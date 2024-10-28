@@ -117,7 +117,10 @@ export const applyDiscountService = async (client, params) => {
     }
   }
 }`,
-      params
+      {
+        cartId: params.cartId,
+        discountCodes: params.discountCodes,
+      }
     );
     return cartResponse;
   } catch (error) {
