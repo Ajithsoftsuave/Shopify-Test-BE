@@ -1,5 +1,3 @@
-
-
 const cartFields = `
 id
 discountCodes{
@@ -116,16 +114,16 @@ lines(first: 250) {
 `;
 
 export const getCartDataByID = () => {
-	return `
+  return `
 	query getCart($id: ID!) {
 		cart(id: $id) {
 			${cartFields}
 		}
 		}
-	`
-}
+	`;
+};
 export const sendOrderInvoice = () => {
-	return `
+  return `
 	mutation OrderInvoiceSend($orderId: ID!, $email: EmailInput) {
 		orderInvoiceSend(id: $orderId, email: $email) {
 			order {
@@ -135,5 +133,20 @@ export const sendOrderInvoice = () => {
 			message
 			}
 		}
-		}`
-}
+		}`;
+};
+
+export const applyDiscount = () => {
+  return `
+	mutation cartDiscountCodesUpdate($cartId: ID!) {
+	cartDiscountCodesUpdate(cartId: $cartId) {
+	  cart {
+		${cartFields}
+	  }
+	  userErrors {
+		field
+		message
+	  }
+	}
+  }`;
+};

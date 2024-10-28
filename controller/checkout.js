@@ -4,6 +4,7 @@ import {
   fetchCart,
   shopifyClientInit,
   storefrontClientInit,
+  applyDiscountService,
 } from "../service/shopify/shopify.service.js";
 
 export const getCartController = async (req, res) => {
@@ -16,9 +17,9 @@ export const getCartController = async (req, res) => {
     if (!data) {
       res.status(404).send("Shopify store not found");
     }
-    const shopifyClient = await storefrontClientInit(data);
-    console.log(shopifyClient);
-    let cart = await fetchCart(shopifyClient, req.query.cartID);
+    const storefrontClient = await storefrontClientInit(data);
+    console.log(storefrontClient);
+    let cart = await fetchCart(storefrontClient, req.query.cartID);
 
     res.send({ data: cart });
   } catch (error) {
@@ -62,6 +63,33 @@ export const createOrderController = async (req, res) => {
     orderParam.paymentDetail = req.body.paymentDetail;
     const result = await createOrder(shopifyClient, orderParam);
     res.send({ data: result });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+};
+
+export const applyDiscountController = async (req, res) => {
+  try {
+    const data = await ShopifyStore.findOne({
+      where: {
+        shop_id: req.query.shopID,
+      },
+    });
+    if (!data) {
+      res.status(404).send("Shopify store not found");
+    }
+    const storefrontClient = await storefrontClientInit(data);
+
+    const requestParams = {
+      cartId: req.query.cartID,
+      discountCodes: [req.query.discountCode],
+    };
+    let updatedCart = await applyDiscountService(
+      storefrontClient,
+      requestParams
+    );
+
+    res.send({ data: updatedCart });
   } catch (error) {
     res.status(500).send(error);
   }

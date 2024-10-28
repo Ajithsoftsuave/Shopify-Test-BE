@@ -3,17 +3,18 @@ import { createStorefrontApiClient } from "@shopify/storefront-api-client";
 import {
   getCartDataByID,
   sendOrderInvoice,
+  applyDiscount,
 } from "../../service/shopify/query/cart.js";
 import Shopify from "shopify-api-node";
 
 export const storefrontClientInit = async (storeDetail) => {
   try {
-    const shopifyClient = await createStorefrontApiClient({
+    const storefrontClient = await createStorefrontApiClient({
       storeDomain: storeDetail.shop_url,
       apiVersion: ApiVersion.July24,
       publicAccessToken: storeDetail.storefront_access_token,
     });
-    return shopifyClient;
+    return storefrontClient;
   } catch (error) {
     throw error;
   }
@@ -77,7 +78,7 @@ export const createOrder = async (client, param) => {
         orderId: order.admin_graphql_api_id,
         email: {
           to: order.email,
-          from: "udhayakumar.devendran@softsuave.com",
+          from: "ajithkumar.palani@softsuave.com",
           subject: "Your Invoice from Your Shop Name",
           customMessage:
             "Thank you for your order! Please find your invoice attached.",
@@ -92,6 +93,16 @@ export const createOrder = async (client, param) => {
     }
 
     return order;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const applyDiscountService = async (client, params) => {
+  try {
+    const cartResponse = await client.request(applyDiscount(), params);
+    return cartResponse;
   } catch (error) {
     console.log(error);
     throw error;
