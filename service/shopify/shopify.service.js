@@ -132,36 +132,18 @@ export const applyDiscountService = async (client, params) => {
 export const applyShippingAddress = async (client, params) => {
   try {
     const cartResponse = await client.request(
-      `mutation checkoutShippingAddressUpdateV2($checkoutId: ID!, $shippingAddress: MailingAddressInput!) {
-  checkoutShippingAddressUpdateV2(checkoutId: $checkoutId, shippingAddress: $shippingAddress) {
-    checkout {
+      `mutation cartDeliveryOptionsUpdate($cartId: ID!, $deliveryAddress: MailingAddressInput!) {
+  cartDeliveryOptionsUpdate(cartId: $cartId, deliveryAddress: $deliveryAddress) {
+    cart {
       id
-      shippingAddress {
-        address1
-        city
-        province
-        country
-        zip
-      }
-      totalTax {
-        amount
-        currencyCode
-      }
-      lineItems(first: 10) {
-        edges {
-          node {
-            title
-            quantity
-          }
+      shippingOptions {
+        code
+        title
+        handle
+        price {
+          amount
+          currencyCode
         }
-      }
-      subtotalPrice {
-        amount
-        currencyCode
-      }
-      totalPrice {
-        amount
-        currencyCode
       }
     }
     userErrors {
@@ -169,8 +151,7 @@ export const applyShippingAddress = async (client, params) => {
       message
     }
   }
-}
-`,
+}`,
       params
     );
     return cartResponse;
