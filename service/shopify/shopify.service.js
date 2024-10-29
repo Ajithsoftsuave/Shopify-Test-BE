@@ -11,7 +11,7 @@ export const storefrontClientInit = async (storeDetail) => {
   try {
     const storefrontClient = await createStorefrontApiClient({
       storeDomain: storeDetail.shop_url,
-      apiVersion: ApiVersion.July24,
+      apiVersion: ApiVersion.April24,
       publicAccessToken: storeDetail.storefront_access_token,
     });
     return storefrontClient;
@@ -131,23 +131,56 @@ export const applyDiscountService = async (client, params) => {
   }
 };
 
-export const applyShippingAddress = async (client, params) => {
+export const createCheckoutService = async (client, input) => {
   try {
     const requestParams = {
-      cartID: params.cartID,
+      input: input,
+    };
+
+    const cartResponse = await client.request(
+      `mutation checkoutCreate($input: CheckoutCreateInput!) {
+  checkoutCreate(input: $input) {
+    checkout {
+      id
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}`,
+      requestParams
+    );
+    return cartResponse;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+};
+
+export const applyShippingAddressService = async (client, params) => {
+  try {
+    const requestParams = {
+      checkoutId: params.checkoutId,
       shippingAddress: params.shippingAddress,
     };
 
     const cartResponse = await client.request(
-      `mutation cartDeliveryOptionsUpdate($cartId: ID!, $deliveryAddress: MailingAddressInput!) {
-  cartDeliveryOptionsUpdate(cartId: $cartId, deliveryAddress: $deliveryAddress) {
-    cart {
+      `mutation checkoutShippingAddressUpdateV2($checkoutId: ID!, $shippingAddress: MailingAddressInput!) {
+  checkoutShippingAddressUpdateV2(checkoutId: $checkoutId, shippingAddress: $shippingAddress) {
+    checkout {
       id
-      shippingOptions {
-        code
+      shippingAddress {
+        address1
+        address2
+        city
+        province
+        country
+        zip
+      }
+      shippingLine {
         title
-        handle
-        price {
+        priceV2 {
           amount
           currencyCode
         }

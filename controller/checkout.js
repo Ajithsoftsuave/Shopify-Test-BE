@@ -5,7 +5,8 @@ import {
   shopifyClientInit,
   storefrontClientInit,
   applyDiscountService,
-  applyShippingAddress,
+  applyShippingAddressService,
+  createCheckoutService,
 } from "../service/shopify/shopify.service.js";
 
 export const getCartController = async (req, res) => {
@@ -97,7 +98,7 @@ export const applyDiscountController = async (req, res) => {
   }
 };
 
-export const applyShppingRequest = async (req, res) => {
+export const applyShippingRequest = async (req, res) => {
   try {
     const data = await ShopifyStore.findOne({
       where: {
@@ -107,10 +108,29 @@ export const applyShppingRequest = async (req, res) => {
     if (!data) {
       res.status(404).send("Shopify store not found");
     }
-    const storefrontClient = await storefrontClientInit(data);
-    let updatedCart = await applyShippingAddress(
+    let storefrontClient = await storefrontClientInit(data);
+
+    let checkoutId = req.body?.checkoutId;
+    if (!checkoutId) {
+      const checkoutResponse = await createCheckoutService(storefrontClient, {
+        lineItems: req.body.lineItems,
+        shippingAddress: req.body.shippingAddress,
+        email: req.body.email,
+      });
+      if (!checkoutResponse.checkoutId) {
+        return res.status(400).send("Unable to create checkout");
+      }
+      checkoutId = checkoutResponse.checkoutId;
+    }
+
+    const requestPayload = {
+      checkoutId: checkoutId,
+      shippingAddress: req.body.shippingAddress,
+    };
+
+    let updatedCart = await applyShippingAddressService(
       storefrontClient,
-      req.body
+      requestPayload
     );
 
     res.send({ data: updatedCart });
