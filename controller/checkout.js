@@ -118,7 +118,9 @@ export const applyShippingRequest = async (req, res) => {
         email: req.body.email,
       });
       if (!checkoutResponse.checkoutId) {
-        return res.status(400).send("Unable to create checkout");
+        return res
+          .status(400)
+          .send("Unable to create checkout", checkoutResponse);
       }
       checkoutId = checkoutResponse.checkoutId;
     }

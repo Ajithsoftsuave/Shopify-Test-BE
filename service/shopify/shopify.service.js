@@ -133,22 +133,45 @@ export const applyDiscountService = async (client, params) => {
 
 export const createCheckoutService = async (client, input) => {
   try {
+    // Ensure input is in the correct JSON format with required fields
     const requestParams = {
-      input: input,
+      input: {
+        lineItems: input.lineItems,
+        shippingAddress: {
+          address1: input.shippingAddress.address1,
+          city: input.shippingAddress.city,
+          province: input.shippingAddress.province,
+          country: input.shippingAddress.country,
+          zip: input.shippingAddress.zip,
+          firstName: input.shippingAddress.firstName,
+          lastName: input.shippingAddress.lastName,
+        },
+        email: input.email,
+      },
     };
 
     const cartResponse = await client.request(
-      `mutation checkoutCreate($input: CheckoutCreateInput!) {
-  checkoutCreate(input: $input) {
-    checkout {
-      id
-    }
-    userErrors {
-      field
-      message
-    }
-  }
-}`,
+      `
+      mutation checkoutCreate($input: CheckoutCreateInput!) {
+        checkoutCreate(input: $input) {
+          checkout {
+            id
+            webUrl
+            lineItems(first: 5) {
+              edges {
+                node {
+                  title
+                  quantity
+                }
+              }
+            }
+          }
+          userErrors {
+            field
+            message
+          }
+        }
+      }`,
       requestParams
     );
     return cartResponse;
