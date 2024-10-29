@@ -101,9 +101,12 @@ export const createOrder = async (client, param) => {
 
 export const applyDiscountService = async (client, params) => {
   try {
+    const variables = {
+      cartId: params.cartId,
+      discountCodes: params.discountCodes,
+    };
     const cartResponse = await client.request(
-      `
-	mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
+      `mutation cartDiscountCodesUpdate($cartId: ID!, $discountCodes: [String!]!) {
   cartDiscountCodesUpdate(cartId: $cartId, discountCodes: $discountCodes) {
     cart {
       discountCodes {
@@ -118,8 +121,7 @@ export const applyDiscountService = async (client, params) => {
   }
 }`,
       {
-        cartId: params.cartId,
-        discountCodes: params.discountCodes,
+        variables,
       }
     );
     return cartResponse;
@@ -131,6 +133,11 @@ export const applyDiscountService = async (client, params) => {
 
 export const applyShippingAddress = async (client, params) => {
   try {
+    const requestParams = {
+      cartID: params.cartID,
+      shippingAddress: params.shippingAddress,
+    };
+
     const cartResponse = await client.request(
       `mutation cartDeliveryOptionsUpdate($cartId: ID!, $deliveryAddress: MailingAddressInput!) {
   cartDeliveryOptionsUpdate(cartId: $cartId, deliveryAddress: $deliveryAddress) {
@@ -152,7 +159,7 @@ export const applyShippingAddress = async (client, params) => {
     }
   }
 }`,
-      params
+      requestParams
     );
     return cartResponse;
   } catch (error) {

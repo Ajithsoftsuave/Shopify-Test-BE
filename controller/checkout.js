@@ -108,13 +108,9 @@ export const applyShppingRequest = async (req, res) => {
       res.status(404).send("Shopify store not found");
     }
     const storefrontClient = await storefrontClientInit(data);
-    const requestParams = {
-      checkoutId: "gid://shopify/Checkout/1234567890",
-      shippingAddress: req.body.shippingAddress,
-    };
     let updatedCart = await applyShippingAddress(
       storefrontClient,
-      requestParams
+      req.body
     );
 
     res.send({ data: updatedCart });
