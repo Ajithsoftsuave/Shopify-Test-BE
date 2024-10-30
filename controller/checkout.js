@@ -117,12 +117,10 @@ export const applyShippingRequest = async (req, res) => {
         shippingAddress: req.body.shippingAddress,
         email: req.body.email,
       });
-      if (!checkoutResponse.checkoutId) {
-        return res
-          .status(400)
-          .send("Unable to create checkout", checkoutResponse);
+      if (!checkoutResponse.data.checkoutCreate?.checkout?.id) {
+        return res.status(400).send("Unable to create checkout");
       }
-      checkoutId = checkoutResponse.checkoutId;
+      checkoutId = checkoutResponse.data.checkoutCreate?.checkout?.id;
     }
 
     const requestPayload = {
@@ -135,7 +133,7 @@ export const applyShippingRequest = async (req, res) => {
       requestPayload
     );
 
-    res.send({ data: updatedCart });
+    res.send({ updatedCart });
   } catch (error) {
     res.status(500).send(error);
   }

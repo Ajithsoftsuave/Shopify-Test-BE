@@ -131,28 +131,17 @@ export const applyDiscountService = async (client, params) => {
   }
 };
 
-export const createCheckoutService = async (client, input) => {
+export const createCheckoutService = async (client, params) => {
   try {
-    // Ensure input is in the correct JSON format with required fields
-    const requestParams = {
+    const variables = {
       input: {
-        lineItems: input.lineItems,
-        shippingAddress: {
-          address1: input.shippingAddress.address1,
-          city: input.shippingAddress.city,
-          province: input.shippingAddress.province,
-          country: input.shippingAddress.country,
-          zip: input.shippingAddress.zip,
-          firstName: input.shippingAddress.firstName,
-          lastName: input.shippingAddress.lastName,
-        },
-        email: input.email,
+        shippingAddress: params.shippingAddress,
+        email: params.email,
+        lineItems: params.lineItems,
       },
     };
-
     const cartResponse = await client.request(
-      `
-      mutation checkoutCreate($input: CheckoutCreateInput!) {
+      `mutation checkoutCreate($input: CheckoutCreateInput!) {
         checkoutCreate(input: $input) {
           checkout {
             id
@@ -172,7 +161,9 @@ export const createCheckoutService = async (client, input) => {
           }
         }
       }`,
-      requestParams
+      {
+        variables,
+      }
     );
     return cartResponse;
   } catch (error) {
@@ -183,39 +174,47 @@ export const createCheckoutService = async (client, input) => {
 
 export const applyShippingAddressService = async (client, params) => {
   try {
-    const requestParams = {
-      checkoutId: params.checkoutId,
+    const variables = {
       shippingAddress: params.shippingAddress,
+      checkoutId: params.checkoutId,
     };
-
     const cartResponse = await client.request(
-      `mutation checkoutShippingAddressUpdateV2($checkoutId: ID!, $shippingAddress: MailingAddressInput!) {
-  checkoutShippingAddressUpdateV2(checkoutId: $checkoutId, shippingAddress: $shippingAddress) {
-    checkout {
-      id
-      shippingAddress {
-        address1
-        address2
-        city
-        province
-        country
-        zip
-      }
-      shippingLine {
-        title
-        priceV2 {
-          amount
-          currencyCode
+      `mutation checkoutShippingAddressUpdateV2(
+    $checkoutId: ID!
+    $shippingAddress: MailingAddressInput!
+) {
+    checkoutShippingAddressUpdateV2(
+        checkoutId: $checkoutId
+        shippingAddress: $shippingAddress
+    ) {
+        checkout {
+            id
+            shippingAddress {
+                address1
+                address2
+                city
+                province
+                country
+                zip
+            }
+            shippingLine {
+                title
+                priceV2 {
+                    amount
+                    currencyCode
+                }
+            }
         }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+`,
+      {
+        variables,
       }
-    }
-    userErrors {
-      field
-      message
-    }
-  }
-}`,
-      requestParams
     );
     return cartResponse;
   } catch (error) {
